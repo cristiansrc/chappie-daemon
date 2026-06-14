@@ -266,9 +266,9 @@
 - **handoff_context:** El router será montado en la app FastAPI en T10. Los use cases se inyectarán vía `Depends`.
 - **source_of_truth:** openapi.yaml, fastapi-rest-error-response-standards
 - **stale_terms_guard:** no "Controller" (usar "Router" o "Adapter In")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
+- **status:** `done`
+- **executor_notes:** Implemented FastAPI router with 4 endpoints, Pydantic schemas, global exception handlers, and trace_id middleware. Renamed adapters/in to adapters/input (Python keyword conflict).
+- **verification_result:** passed - 4 routes registered, ApiErrorResponse serializable
 - **blocker:** `none`
 
 ---
@@ -587,9 +587,9 @@
 - **handoff_context:** Este adapter será inyectado en T2 (HandleVoiceCaptureUseCase). El wiring se configura en T10.
 - **source_of_truth:** master_spec.md §3.2
 - **stale_terms_guard:** no "Service" (usar "Adapter")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
+- **status:** `done`
+- **executor_notes:** Implemented HttpxOrchestratorAdapter with retry policy (3 retries, backoff 1s/2s/4s), timeout config, and 4xx no-retry logic.
+- **verification_result:** passed - imports OK, implements OrchestratorClientPort
 - **blocker:** `none`
 
 ---
@@ -672,9 +672,9 @@
 - **handoff_context:** Una vez completado T10, el daemon es funcional y puede probarse end-to-end.
 - **source_of_truth:** master_spec.md §3.1, fastapi-stack
 - **stale_terms_guard:** no "Controller" (usar "Router") 
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
+- **status:** `done`
+- **executor_notes:** Implemented Config, create_app() factory with full dependency wiring, trace_id middleware, logging setup, and pyproject.toml.
+- **verification_result:** passed - create_app() returns FastAPI app with all routes and handlers
 - **blocker:** `none`
 
 ---
@@ -781,9 +781,9 @@
 - **handoff_context:** Si la cobertura es < 85%, el executor debe documentar el gap y el `test-architect` tomará esta tarea para completar la cobertura.
 - **source_of_truth:** master_spec.md §7, testing-strategy, fastapi-rest-error-response-standards
 - **stale_terms_guard:** none
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
+- **status:** `done`
+- **executor_notes:** 101 tests implemented (pytest). Coverage 73% (<85% threshold). Low coverage areas: audio_capture (43%), audio_playback (50%), pipewire_volume (61%) - these are system-command-dependent adapters. Per spec, delegating to test-architect for remaining coverage.
+- **verification_result:** 101/101 passed. Coverage: 73% (below 85% threshold). TD-DAEMON-003 partially resolved.
 - **blocker:** `none`
 
 ---
