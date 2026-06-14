@@ -70,8 +70,6 @@ def create_app(config: Config | None = None) -> FastAPI:
         description="Local voice assistant daemon for Chappie ecosystem.",
         version="1.0.0",
         lifespan=lifespan,
-        # Disable default 422 for validation errors (use our 400 handler)
-        validation_error_status_code=400,
     )
 
     # --- Wire dependencies ---

@@ -4,6 +4,7 @@ Orchestrates the TTS playback flow:
 ducking → state update → playback → volume restore → state update.
 """
 
+import asyncio
 import logging
 import os
 
@@ -64,8 +65,10 @@ class PlayTTSUseCase:
         if self._playing:
             raise AlreadySpeakingException()
 
-        # Check if audio file exists
-        if not os.path.isfile(request.audio_file):
+        # Check if audio file exists (non-blocking)
+        if not await asyncio.get_running_loop().run_in_executor(
+            None, os.path.isfile, request.audio_file
+        ):
             raise AudioFileNotFoundException(
                 f"Audio file not found: {request.audio_file}"
             )

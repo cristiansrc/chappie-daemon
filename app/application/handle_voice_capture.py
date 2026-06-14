@@ -4,7 +4,6 @@ Orchestrates the voice capture flow:
 ducking → recording → volume restore → send to n8n.
 """
 
-import asyncio
 import logging
 from datetime import datetime, timezone
 
@@ -22,10 +21,6 @@ from app.domain.exceptions import (
 )
 
 logger = logging.getLogger(__name__)
-
-# Retry configuration for n8n outbound
-N8N_MAX_RETRIES = 3
-N8N_RETRY_BACKOFF = [1, 2, 4]  # seconds
 
 
 class HandleVoiceCaptureUseCase:
@@ -139,8 +134,16 @@ class HandleVoiceCaptureUseCase:
         # Update state to thinking
         await self._state_management.set_global_state("thinking")
 
-        # Send to n8n with retry policy
-        success = await self._send_to_n8n_with_retry(audio_capture)
+        # Send to n8n (retry policy handled by adapter)
+        try:
+            success = await self._orchestrator.send_audio(audio_capture)
+        except Exception as e:
+            logger.error(
+                "Failed to send audio to n8n (session=%s): %s",
+                audio_capture.session_id,
+                e,
+            )
+            success = False
 
         if success:
             logger.info(
@@ -149,8 +152,7 @@ class HandleVoiceCaptureUseCase:
             )
         else:
             logger.error(
-                "Failed to send audio to n8n after %d retries (session=%s)",
-                N8N_MAX_RETRIES,
+                "Failed to send audio to n8n (session=%s)",
                 audio_capture.session_id,
             )
 
@@ -170,41 +172,4 @@ class HandleVoiceCaptureUseCase:
             except Exception as e:
                 logger.warning("Failed to restore volume: %s", e)
 
-    async def _send_to_n8n_with_retry(self, audio_capture) -> bool:
-        """Send audio to n8n with exponential backoff retry.
 
-        Retries only on 5xx, timeout, connection refused.
-        4xx errors are not retried.
-
-        Returns True if successful, False if all retries exhausted.
-        """
-        last_exception = None
-
-        for attempt in range(1, N8N_MAX_RETRIES + 1):
-            try:
-                result = await self._orchestrator.send_audio(audio_capture)
-                if result:
-                    return True
-                # send_audio returned False (likely 4xx, no retry)
-                logger.warning(
-                    "n8n rejected the audio (attempt %d/%d)", attempt, N8N_MAX_RETRIES
-                )
-                return False
-            except Exception as e:
-                last_exception = e
-                logger.warning(
-                    "n8n send failed (attempt %d/%d): %s",
-                    attempt,
-                    N8N_MAX_RETRIES,
-                    e,
-                )
-                if attempt < N8N_MAX_RETRIES:
-                    backoff = N8N_RETRY_BACKOFF[attempt - 1]
-                    await asyncio.sleep(backoff)
-
-        logger.error(
-            "All %d retry attempts to n8n exhausted: %s",
-            N8N_MAX_RETRIES,
-            last_exception,
-        )
-        return False
