@@ -1,0 +1,34 @@
+# Chappie Daemon - Git Ignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Temp
+*.tmp
+*.bak
+*~
+
+# Config local (sobrescribe valores por defecto)
+config/config.local.yaml
+
+# Archivos de estado runtime
+/tmp/chappie_*
