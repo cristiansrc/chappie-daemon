@@ -1,0 +1,212 @@
+openapi: 3.0.3
+info:
+  title: Chappie Daemon API
+  description: API local para el control de reproducción TTS y estado del daemon de Chappie.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8765
+    description: Local server
+paths:
+  /play-tts:
+    post:
+      summary: Reproducir audio TTS
+      description: Recibe una solicitud para reproducir un archivo de audio generado por el sistema TTS, aplicando volume ducking y gestionando el estado visual.
+      operationId: playTts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayTtsRequest'
+      responses:
+        '200':
+          description: Audio reproducido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Archivo de audio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflicto - Ya se está reproduciendo un audio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Servicio no disponible - PipeWire no responde
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /shortcut/press:
+    post:
+      summary: Iniciar grabación (Atajo presionado)
+      description: Inicia la grabación de voz y aplica volume ducking. Llamado por el compositor (ej. Hyprland) al presionar el atajo.
+      operationId: shortcutPress
+      responses:
+        '200':
+          description: Grabación iniciada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '409':
+          description: Conflicto - Ya hay una grabación en curso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Servicio no disponible - Micrófono no accesible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /shortcut/release:
+    post:
+      summary: Detener grabación (Atajo soltado)
+      description: Detiene la grabación, restaura el volumen y envía el audio a n8n. Llamado por el compositor al soltar el atajo.
+      operationId: shortcutRelease
+      responses:
+        '200':
+          description: Grabación detenida y enviada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '409':
+          description: Conflicto - No hay grabación activa para detener
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Servicio no disponible - n8n no responde
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /health:
+    get:
+      summary: Health check
+      description: Verifica que el daemon esté en ejecución.
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Daemon OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    PlayTtsRequest:
+      type: object
+      required:
+        - audio_file
+        - text
+      properties:
+        audio_file:
+          type: string
+          description: Ruta absoluta al archivo de audio a reproducir.
+          example: "/tmp/chappie_tts.mp3"
+        text:
+          type: string
+          description: Texto que se está reproduciendo (para logs o estado).
+          example: "Hola, soy Chappie."
+        ducking:
+          type: boolean
+          description: Indica si se debe aplicar volume ducking durante la reproducción.
+          default: true
+          
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        message:
+          type: string
+          example: "Audio played successfully"
+          
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+          
+    ApiErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+          nullable: true
+          description: Campo del request que causó el error (si aplica).
+          example: "audio_file"
+        code:
+          type: string
+          description: Código estable del error técnico o de negocio.
+          example: "FIELD_INVALID"
+        message:
+          type: string
+          description: Descripción legible del error específico.
+          example: "El archivo de audio no existe en la ruta especificada"
+        rejected_value:
+          type: string
+          nullable: true
+          description: Valor rechazado que causó el error (si aplica).
+          example: "/tmp/inexistente.mp3"
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        trace_id:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiErrorDetail'
+          description: Lista de errores detallados (puede estar vacía).
