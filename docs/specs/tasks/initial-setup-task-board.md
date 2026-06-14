@@ -61,9 +61,9 @@
 - **handoff_context:** Los modelos y puertos definidos aquí serán referenciados por T2, T3 (use cases) y T5-T9 (adapters out).
 - **source_of_truth:** master_spec.md §2.1
 - **stale_terms_guard:** no "Controller", no "Service", no "DTO"
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
+- **status:** `done`
+- **executor_notes:** Implemented domain models (AudioCapture, TTSRequest, SystemState), 6 ABC ports, and 7 domain exceptions with stable codes. All verification checks passed.
+- **verification_result:** passed - imports ok, exception codes verified, no infra imports in domain**
 - **blocker:** `none`
 
 ---
