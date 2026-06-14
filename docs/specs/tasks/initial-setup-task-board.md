@@ -125,10 +125,9 @@
 - **handoff_context:** Este use case será inyectado en el Router (T4) para los endpoints `POST /shortcut/press` y `POST /shortcut/release`.
 - **source_of_truth:** master_spec.md §4.1
 - **stale_terms_guard:** no "Service" (usar "UseCase")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
-- **blocker:** `none`
+- **status:** `done`
+- **executor_notes:** Implemented HandleVoiceCaptureUseCase with start_capture/stop_capture/is_recording methods, ducking logic, state transitions, and n8n retry policy (3 retries with exponential backoff 1s/2s/4s).
+- **verification_result:** passed - import OK, no infra dependencies
 
 ---
 
@@ -185,10 +184,9 @@
 - **handoff_context:** Este use case será inyectado en el Router (T4) para el endpoint `POST /play-tts`.
 - **source_of_truth:** master_spec.md §4.2
 - **stale_terms_guard:** no "Service" (usar "UseCase")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
-- **blocker:** `none`
+- **status:** `done`
+- **executor_notes:** Implemented PlayTTSUseCase with play/is_playing methods, file existence check, ducking, state transitions (speaking ↔ idle), and guaranteed volume/state restore in finally block.
+- **verification_result:** passed - import OK, no infra dependencies
 
 ---
 
