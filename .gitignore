@@ -32,3 +32,10 @@ config/config.local.yaml
 
 # Archivos de estado runtime
 /tmp/chappie_*
+
+# Testing y Cobertura
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
