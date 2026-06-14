@@ -1,7 +1,7 @@
 # Shared Context - Chappie Daemon Initial Setup
 
 ## Current status
-validated-not-executed
+executed
 
 ## Canonical artifacts
 - Master Spec: `/home/cristiansrc/Documentos/Proyectos/chappie-workspace/projects/chappie-daemon/docs/specs/master_spec.md`
