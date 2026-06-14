@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -162,6 +162,31 @@ def register_exception_handlers(app: FastAPI) -> None:
             code="VALIDATION_ERROR",
             message="The request contains invalid fields.",
             details=[d.model_dump() for d in details],
+        )
+
+    @app.exception_handler(HTTPException)
+    async def handle_http_exception(
+        request: Request, exc: HTTPException
+    ) -> JSONResponse:
+        """Normalize HTTPException 404 to ApiErrorResponse."""
+        code = "NOT_FOUND" if exc.status_code == 404 else "HTTP_ERROR"
+        return _build_error_response(
+            request=request,
+            status_code=exc.status_code,
+            code=code,
+            message=str(exc.detail) if exc.detail else "Not Found",
+        )
+
+    # Override Starlette's default 404 handler for unknown routes
+    @app.exception_handler(404)
+    async def handle_not_found(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
+        return _build_error_response(
+            request=request,
+            status_code=status.HTTP_404_NOT_FOUND,
+            code="NOT_FOUND",
+            message="The requested endpoint was not found.",
         )
 
     @app.exception_handler(Exception)
