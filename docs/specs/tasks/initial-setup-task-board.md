@@ -329,10 +329,9 @@
 - **handoff_context:** Este adapter será inyectado en T2 y T3 (use cases) vía constructor. El wiring se configura en T10.
 - **source_of_truth:** master_spec.md §2.3, Decisions locked
 - **stale_terms_guard:** no "Service" (usar "Adapter")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
-- **blocker:** `none`
+- **status:** `done`
+- **executor_notes:** Implemented PipeWireVolumeAdapter with async subprocess for wpctl (duck/restore/is_available). Lists active sinks dynamically.
+- **verification_result:** passed - imports OK, implements VolumeControlPort
 
 ---
 
@@ -394,10 +393,9 @@
 - **handoff_context:** Este adapter será inyectado en T2 (HandleVoiceCaptureUseCase). El wiring se configura en T10.
 - **source_of_truth:** master_spec.md §2.3, technical_debt.md TD-DAEMON-001
 - **stale_terms_guard:** no "Service" (usar "Adapter")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
-- **blocker:** `none`
+- **status:** `done`
+- **executor_notes:** Implemented AudioCaptureAdapter with arecord as primary backend and pyaudio as fallback. Resolves TD-DAEMON-001.
+- **verification_result:** passed - imports OK, implements AudioCapturePort
 
 ---
 
@@ -456,10 +454,9 @@
 - **handoff_context:** Este adapter será inyectado en T3 (PlayTTSUseCase). El wiring se configura en T10.
 - **source_of_truth:** master_spec.md §2.3
 - **stale_terms_guard:** no "Service" (usar "Adapter")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
-- **blocker:** `none`
+- **status:** `done`
+- **executor_notes:** Implemented AudioPlaybackAdapter with ffplay as primary backend and mpv as fallback. 60s timeout for playback.
+- **verification_result:** passed - imports OK, implements AudioPlaybackPort
 
 ---
 
@@ -483,7 +480,7 @@
 - **inputs:**
   - T1 (`StateManagementPort` ABC)
   - master_spec.md §3.3 (definición de los 3 archivos y sus valores)
-  - master_spec.md §4.1 (transiciones de estado en voice loop)
+  - master_spec.md §4.1, §4.2 (transiciones de estado en voice loop)
   - master_spec.md §4.2 (transiciones de estado en TTS playback)
 - **implementation_notes:**
   - Implementar `StateManagementPort` con métodos:
@@ -519,10 +516,9 @@
 - **handoff_context:** Este adapter será inyectado en T2 y T3 (use cases). El wiring se configura en T10.
 - **source_of_truth:** master_spec.md §3.3
 - **stale_terms_guard:** no "Service" (usar "Adapter")
-- **status:** `todo`
-- **executor_notes:**
-- **verification_result:**
-- **blocker:** `none`
+- **status:** `done`
+- **executor_notes:** Implemented FileStateAdapter with atomic writes (temp+rename), state validation, and best-effort error handling.
+- **verification_result:** passed - imports OK, implements StateManagementPort
 
 ---
 
